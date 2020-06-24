@@ -1,0 +1,386 @@
+@extends('layouts.app')
+
+@section('content')
+    
+    {!! Form::model($delivery_instruction, ['method' => 'PUT', 'route' => ['admin.delivery_instructions.update', $delivery_instruction->id]]) !!}
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            @lang('global.app_edit')
+        </div>
+
+        <div class="panel-body">
+
+            <div class="row">
+                @if (config('invoices.logo_file') != '')
+                    <div class="col-md-12 text-center">
+                        <img src="{{ config('invoices.logo_file') }}" /><br>
+                        <h1><span style="color:#CE8F64">DELIVERY NOTE</span></h1>
+                    </div>
+                @endif
+            </div>
+
+            <div class="row">
+                <div class="col-xs-2 form-group">
+                    {!! Form::label('road_freight_number_id', trans('global.delivery-instruction.fields.road-freight-number').'', ['class' => 'control-label']) !!}
+                    {!! Form::select('road_freight_number_id', $road_freight_numbers, old('road_freight_number_id'), ['class' => 'form-control select2']) !!}
+                    @if($errors->has('road_freight_number_id'))
+                        <p class="help-block">
+                            {{ $errors->first('road_freight_number_id') }}
+                        </p>
+                    @endif
+                </div> 
+                <div class="col-xs-2 form-group">
+                    {!! Form::label('freight_contract_type', trans('global.delivery-instruction.fields.freight-contract-type').'*', ['class' => 'control-label']) !!}
+                    {!! Form::select('freight_contract_type', $enum_freight_contract_type, old('freight_contract_type'), ['class' => 'form-control select2 freight_contract_type', 'required' => '']) !!}
+                    @if($errors->has('freight_contract_type'))
+                        <p class="help-block">
+                            {{ $errors->first('freight_contract_type') }}
+                        </p>
+                    @endif
+                </div>
+                <div class="col-xs-2 form-group">
+                    {!! Form::label('status', trans('global.delivery-instruction.fields.status').'', ['class' => 'control-label']) !!}
+                    {!! Form::select('status', $enum_status, old('status'), ['class' => 'form-control select2']) !!}
+                    @if($errors->has('status'))
+                        <p class="help-block">
+                            {{ $errors->first('status') }}
+                        </p>
+                    @endif
+                </div>               
+                <div class="col-xs-2 form-group pull-right">
+                    {!! Form::label('delivery_instruction_number', trans('global.delivery-instruction.fields.delivery-instruction-number').'', ['class' => 'control-label']) !!}
+                    {!! Form::text('delivery_instruction_number', old('delivery_instruction_number'), ['class' => 'form-control', 'placeholder' => 'Auto Generate', 'readonly']) !!}
+                    @if($errors->has('delivery_instruction_number'))
+                        <p class="help-block">
+                            {{ $errors->first('delivery_instruction_number') }}
+                        </p>
+                    @endif
+                </div>
+                <div class="col-xs-3 form-group pull-right">
+                    {!! Form::label('prepared_by', trans('global.delivery-instruction.fields.prepared-by').'', ['class' => 'control-label']) !!}
+                    {!! Form::text('prepared_by', old('prepared_by'), ['class' => 'form-control', 'placeholder' => 'Auto Generated']) !!}
+                    @if($errors->has('prepared_by'))
+                        <p class="help-block">
+                            {{ $errors->first('prepared_by') }}
+                        </p>
+                    @endif
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-6 form-group">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-striped">
+                            <legend class="text-center"><span style="color:#CE8F64">SHAVAELAND INFO</span></legend>
+                                <div class="col-xs-6">
+                                    {!! Form::label('driver_id', trans('global.delivery-instruction.fields.driver').'', ['class' => 'control-label']) !!}
+                                    {!! Form::select('driver_id', $drivers, old('driver_id'), ['class' => 'form-control select2 driver_id']) !!}
+                                    @if($errors->has('driver_id'))
+                                        <p class="help-block">
+                                            {{ $errors->first('driver_id') }}
+                                        </p>
+                                    @endif
+                                </div>
+                                <div class="col-xs-6 form-group">
+                                    {!! Form::label('vehicle_id', trans('global.delivery-instruction.fields.vehicle').'', ['class' => 'control-label']) !!}
+                                    {!! Form::select('vehicle_id', $vehicles, old('vehicle_id'), ['class' => 'form-control select2 vehicle_id']) !!}
+                                    @if($errors->has('vehicle_id'))
+                                        <p class="help-block">
+                                            {{ $errors->first('vehicle_id') }}
+                                        </p>
+                                    @endif
+                                </div>
+                                <br><br>
+                                <div class="col-xs-12 form-group">
+                                    {!! Form::label('trailers', trans('global.delivery-instruction.fields.trailers').'', ['class' => 'control-label']) !!}
+                                    <button type="button" class="btn btn-primary btn-xs" id="selectbtn-trailers">
+                                        {{ trans('global.app_select_all') }}
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-xs" id="deselectbtn-trailers">
+                                        {{ trans('global.app_deselect_all') }}
+                                    </button>
+                                    {!! Form::select('trailers[]', $trailers, old('trailers'), ['class' => 'form-control select2 trailers_id', 'multiple' => 'multiple', 'id' => 'selectall-trailers' ]) !!}
+                                    @if($errors->has('trailers'))
+                                        <p class="help-block">
+                                            {{ $errors->first('trailers') }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-6 form-group">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table class="table table-bordered table-striped">
+                            <legend class="text-center"><span style="color:#CE8F64">SUBCONTRACTOR INFO</span></legend>
+                                <div class="col-xs-6">
+                                    {!! Form::label('vendor_id', trans('global.delivery-instruction.fields.vendor').'', ['class' => 'control-label']) !!}
+                                    {!! Form::select('vendor_id', $vendors, old('vendor_id'), ['class' => 'form-control select2 vendor_id']) !!}
+                                    @if($errors->has('vendor_id'))
+                                        <p class="help-block">
+                                            {{ $errors->first('vendor_id') }}
+                                        </p>
+                                    @endif
+                                </div>
+                                <div class="col-xs-6 form-group">
+                                    {!! Form::label('vendor_driver_id', trans('global.delivery-instruction.fields.vendor-driver').'', ['class' => 'control-label']) !!}
+                                    {!! Form::select('vendor_driver_id', $vendor_drivers, old('vendor_driver_id'), ['class' => 'form-control select2 vendor_driver_id']) !!}
+                                    @if($errors->has('vendor_driver_id'))
+                                        <p class="help-block">
+                                            {{ $errors->first('vendor_driver_id') }}
+                                        </p>
+                                    @endif
+                                </div>
+                                <br><br>
+                                <div class="col-xs-12 form-group">
+                                    {!! Form::label('vendor_vehicle_description', trans('global.delivery-instruction.fields.vendor-vehicle-description').'', ['class' => 'control-label']) !!}
+                                    <button type="button" class="btn btn-primary btn-xs" id="selectbtn-vendor_vehicle_description">
+                                        {{ trans('global.app_select_all') }}
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-xs" id="deselectbtn-vendor_vehicle_description">
+                                        {{ trans('global.app_deselect_all') }}
+                                    </button>
+                                    {!! Form::select('vendor_vehicle_description[]', $vendor_vehicle_descriptions, old('vendor_vehicle_description'), ['class' => 'form-control select2 vendor_vehicle_description_id', 'multiple' => 'multiple', 'id' => 'selectall-vendor_vehicle_description' ]) !!}
+                                    @if($errors->has('vendor_vehicle_description'))
+                                        <p class="help-block">
+                                            {{ $errors->first('vendor_vehicle_description') }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-3 form-group">
+                    {!! Form::label('client_id', trans('global.delivery-instruction.fields.client').'*', ['class' => 'control-label']) !!}
+                    {!! Form::select('client_id', $clients, old('client_id'), ['class' => 'form-control select2', 'required' => '']) !!}
+                    @if($errors->has('client_id'))
+                        <p class="help-block">
+                            {{ $errors->first('client_id') }}
+                        </p>
+                    @endif
+                </div>
+                <div class="col-xs-3 form-group">
+                    {!! Form::label('contact_person_id', trans('global.delivery-instruction.fields.contact-person').'', ['class' => 'control-label']) !!}
+                    {!! Form::select('contact_person_id', $contact_people, old('contact_person_id'), ['class' => 'form-control select2']) !!}
+                    @if($errors->has('contact_person_id'))
+                        <p class="help-block">
+                            {{ $errors->first('contact_person_id') }}
+                        </p>
+                    @endif
+                </div>
+                <div class="col-xs-3 form-group">
+                    {!! Form::label('project_manager_id', trans('global.delivery-instruction.fields.project-manager').'', ['class' => 'control-label']) !!}
+                    {!! Form::select('project_manager_id', $project_managers, old('project_manager_id'), ['class' => 'form-control select2']) !!}
+                    @if($errors->has('project_manager_id'))
+                        <p class="help-block">
+                            {{ $errors->first('project_manager_id') }}
+                        </p>
+                    @endif
+                </div>
+                <div class="col-xs-2 form-group pull-right">
+                    {!! Form::label('order_number', trans('global.delivery-instruction.fields.order-number').'', ['class' => 'control-label']) !!}
+                    {!! Form::text('order_number', old('order_number'), ['class' => 'form-control', 'placeholder' => 'Order No.']) !!}
+                    @if($errors->has('order_number'))
+                        <p class="help-block">
+                            {{ $errors->first('order_number') }}
+                        </p>
+                    @endif
+                </div>
+            </div>
+            
+            
+            <div class="row">
+                <div class="col-xs-3 form-group">
+                    {!! Form::label('delivery_company_name', trans('global.delivery-instruction.fields.delivery-company-name').'*', ['class' => 'control-label']) !!}
+                    {!! Form::text('delivery_company_name', old('delivery_company_name'), ['class' => 'form-control', 'placeholder' => 'Delivery company name', 'required' => '']) !!}
+                    @if($errors->has('delivery_company_name'))
+                        <p class="help-block">
+                            {{ $errors->first('delivery_company_name') }}
+                        </p>
+                    @endif
+                </div>
+                <div class="col-xs-6 form-group">
+                    {!! Form::label('delivery_address_address', trans('global.delivery-instruction.fields.delivery-address').'*', ['class' => 'control-label']) !!}
+                    {!! Form::text('delivery_address_address', old('delivery_address_address'), ['class' => 'form-control map-input', 'id' => 'delivery_address-input', 'required' => '']) !!}
+                    {!! Form::hidden('delivery_address_latitude', 0 , ['id' => 'delivery_address-latitude']) !!}
+                    {!! Form::hidden('delivery_address_longitude', 0 , ['id' => 'delivery_address-longitude']) !!}
+                    @if($errors->has('delivery_address'))
+                        <p class="help-block">
+                            {{ $errors->first('delivery_address') }}
+                        </p>
+                    @endif
+                </div>
+                <div class="col-xs-2 form-group pull-right">
+                    {!! Form::label('delivery_date_time', trans('global.delivery-instruction.fields.delivery-date-time').'*', ['class' => 'control-label']) !!}
+                    {!! Form::text('delivery_date_time', old('delivery_date_time'), ['class' => 'form-control datetime', 'placeholder' => 'YYYY-MM-DD', 'required' => '']) !!}
+                    @if($errors->has('delivery_date_time'))
+                        <p class="help-block">
+                            {{ $errors->first('delivery_date_time') }}
+                        </p>
+                    @endif
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped" id="tab_logic">
+                        <legend class="text-center"><span style="color:#CE8F64">DELIVERY ITEMS</span></legend>
+                        <thead>
+                        <tr>
+                            <th>@lang('global.load-descriptions.fields.description')</th>
+                            <th width="15%">@lang('global.load-descriptions.fields.qty')</th>
+                            <th width="15%">@lang('global.load-descriptions.fields.weight-volume')</th>
+                            <th width="9%">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="load-descriptions">
+                            @forelse(old('load_descriptions', []) as $index => $data)
+                                @include('admin.delivery_instructions.load_descriptions_row', [
+                                    'index' => $index
+                                ])
+                            @empty
+                                @foreach($delivery_instruction->load_descriptions as $item)
+                                    @include('admin.delivery_instructions.load_descriptions_row', [
+                                        'index' => 'id-' . $item->id,
+                                        'field' => $item
+                                    ])
+                                @endforeach
+                            @endforelse
+                        </tbody>
+                    </table>
+                    <a href="#" class="btn btn-primary pull-right add-new">@lang('global.app_add_new')</a>
+                </div>
+            </div>
+
+            <div id="delivery_address-map-container" style="width:100%;height:200px; ">
+                <div style="width: 100%; height: 100%" id="delivery_address-map"></div>
+            </div>
+            @if(!env('GOOGLE_MAPS_API_KEY'))
+                <b>'GOOGLE_MAPS_API_KEY' is not set in the .env</b>
+            @endif
+            
+        </div>
+    </div>
+    {!! Form::submit(trans('global.app_update'), ['class' => 'btn btn-danger']) !!}
+    {!! Form::close() !!}
+@stop
+
+@section('javascript')
+    @parent
+   <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&libraries=places&callback=initialize" async defer></script>
+   <script src="/adminlte/js/mapInput.js"></script>
+
+    <script type="text/html" id="load-descriptions-template">
+        @include('admin.delivery_instructions.load_descriptions_row',
+                [
+                    'index' => '_INDEX_',
+                ])
+               </script > 
+
+    <script src="{{ url('adminlte/plugins/datetimepicker/moment-with-locales.min.js') }}"></script>
+    <script src="{{ url('adminlte/plugins/datetimepicker/bootstrap-datetimepicker.min.js') }}"></script>
+    <script>
+        $(function(){
+            moment.updateLocale('{{ App::getLocale() }}', {
+                week: { dow: 1 } // Monday is the first day of the week
+            });
+            
+            $('.datetime').datetimepicker({
+                format: "{{ config('app.datetime_format_moment') }}",
+                locale: "{{ App::getLocale() }}",
+                sideBySide: true,
+            });
+            
+        });
+    </script>
+            
+            <script>
+        $('.add-new').click(function () {
+            var tableBody = $(this).parent().find('tbody');
+            var template = $('#' + tableBody.attr('id') + '-template').html();
+            var lastIndex = parseInt(tableBody.find('tr').last().data('index'));
+            if (isNaN(lastIndex)) {
+                lastIndex = 0;
+            }
+            tableBody.append(template.replace(/_INDEX_/g, lastIndex + 1));
+            return false;
+        });
+        $(document).on('click', '.remove', function () {
+            var row = $(this).parentsUntil('tr').parent();
+            row.remove();
+            return false;
+        });
+        </script>
+    <script>
+        $("#selectbtn-vehicle_description").click(function(){
+            $("#selectall-vehicle_description > option").prop("selected","selected");
+            $("#selectall-vehicle_description").trigger("change");
+        });
+        $("#deselectbtn-vehicle_description").click(function(){
+            $("#selectall-vehicle_description > option").prop("selected","");
+            $("#selectall-vehicle_description").trigger("change");
+        });
+    </script>
+
+    <script>
+        $("#selectbtn-vendor_vehicle_description").click(function(){
+            $("#selectall-vendor_vehicle_description > option").prop("selected","selected");
+            $("#selectall-vendor_vehicle_description").trigger("change");
+        });
+        $("#deselectbtn-vendor_vehicle_description").click(function(){
+            $("#selectall-vendor_vehicle_description > option").prop("selected","");
+            $("#selectall-vendor_vehicle_description").trigger("change");
+        });
+    </script>
+
+    <script>
+        $(document).ready(function(){            
+            $('.vendor_id').prop('disabled', true);
+            $('.vendor_driver_id').prop('disabled', true);
+            $('.vendor_vehicle_description_id').prop('disabled', true);
+            $('#selectbtn-vendor_vehicle_description').prop('disabled', true);
+            $('#deselectbtn-vendor_vehicle_description').prop('disabled', true);
+            
+
+            $('.freight_contract_type').change(function(){
+                var selectedOption = $('.freight_contract_type option:selected');
+                if(selectedOption.val() === 'Shavaeland'){
+                    $('.vendor_id').prop('disabled', true);
+                    $('.vendor_driver_id').prop('disabled', true);
+                    $('.vendor_vehicle_description_id').prop('disabled', true);
+                    $('#selectbtn-vendor_vehicle_description').prop('disabled', true);
+                    $('#deselectbtn-vendor_vehicle_description').prop('disabled', true);
+
+                    $('.driver_id').prop('disabled', false);
+                    $('.vehicle_id').prop('disabled', false);
+                    $('.trailers_id').prop('disabled', false);
+                    $('#selectbtn-trailers').prop('disabled', false);
+                    $('#deselectbtn-trailers').prop('disabled', false);                    
+                }
+
+                if(selectedOption.val() === 'Subcontractor'){
+                    $('.vendor_id').prop('disabled', false);
+                    $('.vendor_driver_id').prop('disabled', false);
+                    $('.vendor_vehicle_description_id').prop('disabled', false);
+                    $('#selectbtn-vendor_vehicle_description').prop('disabled', false);
+                    $('#deselectbtn-vendor_vehicle_description').prop('disabled', false);
+
+                    $('.driver_id').prop('disabled', true);
+                    $('.vehicle_id').prop('disabled', true);
+                    $('.trailers_id').prop('disabled', true);
+                    $('#selectbtn-trailers').prop('disabled', true);
+                    $('#deselectbtn-trailers').prop('disabled', true);
+                }
+            });
+        });
+    </script>
+@stop

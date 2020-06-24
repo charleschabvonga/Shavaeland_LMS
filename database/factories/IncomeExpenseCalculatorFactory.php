@@ -1,0 +1,36 @@
+<?php
+
+$factory->define(App\IncomeExpenseCalculator::class, function (Faker\Generator $faker) {
+    return [
+        "route_id" => factory('App\Route')->create(),
+        "distance" => $faker->randomFloat(2, 1, 100),
+        "load_status" => collect(["Empty","Loaded",])->random(),
+        "truck_attachment_status_id" => factory('App\TruckAttachmentStatus')->create(),
+        "machinery_attachment_type_id" => factory('App\MachineryType')->create(),
+        "size_id" => factory('App\MachinerySize')->create(),
+        "vehicles_id" => factory('App\Vehicle')->create(),
+        "purchase_price" => $faker->randomNumber(2),
+        "salvage_value" => $faker->randomNumber(2),
+        "avg_investment" => $faker->randomNumber(2),
+        "depreciation" => $faker->randomNumber(2),
+        "insurance" => $faker->randomNumber(2),
+        "license" => $faker->randomNumber(2),
+        "fuel_price" => $faker->randomNumber(2),
+        "fuel_usage" => $faker->randomFloat(2, 1, 100),
+        "fuel" => $faker->randomNumber(2),
+        "fuel_consumption" => $faker->randomFloat(2, 1, 100),
+        "oil_price" => $faker->randomNumber(2),
+        "oil_usage" => $faker->randomFloat(2, 1, 100),
+        "oil" => $faker->randomNumber(2),
+        "oil_consumption" => $faker->randomFloat(2, 1, 100),
+        "tyre_price" => $faker->randomNumber(2),
+        "number_of_tyres" => $faker->randomFloat(2, 1, 100),
+        "tyre" => $faker->randomNumber(2),
+        "repair_maintenance" => $faker->randomNumber(2),
+        "contigency_factor" => $faker->randomNumber(2),
+        "trip_income" => $faker->randomNumber(2),
+        "other_costs" => $faker->randomNumber(2),
+        "total_costs" => $faker->randomNumber(2),
+        "balance" => $faker->randomNumber(2),
+    ];
+});
